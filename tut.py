@@ -1,4 +1,5 @@
 import pygame
+from sympy import Ray, Circle, Point
 import math
 pygame.init()
 
@@ -19,7 +20,7 @@ class Planet:
     # distance from the sun in meters
     AU = 149.6e6 * 1000
     G = 6.67428e-11
-    SCALE = 250 / AU    # 1 AU = 100px
+    SCALE = 125 / AU    # 1 AU = 100px
     TIMESTEP = 3600 * 24    # 1 day in seconds
 
     def __init__(self, x, y, radius, color, mass, name) -> None:
@@ -92,6 +93,31 @@ class Planet:
         self.y += self.y_vel * self.TIMESTEP
         self.orbit.append((self.x, self.y))
 
+def get_intersection(r, center, coor1, coor2):
+    # circle centered at (center)
+    x2, y2 = coor2
+    x1, y1 = coor1
+    x0, y0 = center
+    if abs(x2 - x1) >= 0.1:
+        m = (y2 - y1) / (x2 - x1)
+        c = (y1 * x2 - y2 * x1) / (x2 - x1)
+
+        D = math.sqrt(m * m * (r * r - x0 * x0) + m * (2 * x0 * y0 - 2 * x0) + r * r  - c * c - y0 * y0 + 2 * y0 * c)
+        x, xprime = ((m * y0 - m * c + x0) - D) / (m * m + 1), ((m * y0 - m * c + x0) + D) / (m * m + 1)
+        y, yprime = m * x + c, m * xprime + c
+
+        if (m * (yprime - y1) + (xprime - x1)) * (m * (y2 - y1) + (x2 - x1)) > 0:
+            return xprime, yprime
+
+        return x, y
+    else:
+        D = math.sqrt(r * r  - (x1 - x0) * (x1 - x0))
+        
+        if y1 < y2:
+            return x1, y0 + D
+        else:
+            return x1, y0 - D
+
 def main():
     run = True
     clock = pygame.time.Clock()
@@ -101,9 +127,13 @@ def main():
 
     earth = Planet(-1 * Planet.AU, 0, 16, BLUE, 5.9742 * 10**24, "EARTH")
     earth.y_vel = 29.783 * 1000 
+    # earth = Planet(-0.0167 * Planet.AU, 0, 16, BLUE, 5.9742 * 10**24, "EARTH")
+    # earth.y_vel = 29.783 * 1000 
 
     mars = Planet(-1.524 * Planet.AU, 0, 12, RED, 6.39 * 10**23, "MARS")
     mars.y_vel = 24.077 * 1000
+    # mars = Planet(-0.142 * Planet.AU, 0, 12, RED, 6.39 * 10**23, "MARS")
+    # mars.y_vel = 24.077 * 1000
 
     mercury = Planet(0.387 * Planet.AU, 0, 8, DARK_GREY, 3.30 * 10**23, "MERCURY")
     mercury.y_vel = -47.4 * 1000
@@ -111,7 +141,6 @@ def main():
     venus = Planet(0.723 * Planet.AU, 0, 14, WHITE, 4.8685 * 10**24, "VENUS")
     venus.y_vel = -35.02 * 1000
 
-    # planets = [sun, earth, mars, mercury, venus]
     planets = [sun, earth, mars]
 
     while run:
@@ -125,11 +154,33 @@ def main():
         for planet in planets:
             planet.update_position(planets)
             planet.draw(WIN)
-        
+
+        # draw line bw earth and mars
         EARTH_COOR = (earth.x * Planet.SCALE + WIDTH / 2, earth.y * Planet.SCALE + HEIGHT / 2)
         MARS_COOR = (mars.x * Planet.SCALE + WIDTH / 2, mars.y * Planet.SCALE + HEIGHT / 2)
-        pygame.draw.line(WIN, WHITE, EARTH_COOR, MARS_COOR)
+        # pygame.draw.line(WIN, WHITE, EARTH_COOR, MARS_COOR)
 
+        # find projection and show it
+        RADIUS = 380
+        CENTER = (WIDTH / 2, HEIGHT / 2)
+        pygame.draw.circle(WIN, WHITE, CENTER, RADIUS, 1)
+
+        # EARTH = (earth.x * Planet.SCALE, earth.y * Planet.SCALE)
+        # MARS = (mars.x * Planet.SCALE, mars.y * Planet.SCALE)
+
+        # x, y = get_intersection(RADIUS, CENTER, EARTH_COOR, MARS_COOR)
+        # x, y = get_intersection(RADIUS, CENTER, EARTH_COOR, MARS_COOR)
+        # x += WIDTH / 2
+        # y += HEIGHT / 2
+        # point = x, y
+
+        circle = Circle((WIDTH / 2, HEIGHT / 2), 380)
+        ray = Ray(Point(EARTH_COOR), Point(MARS_COOR))
+        point = ray.intersection(circle)[0]
+        pygame.draw.circle(WIN, mars.color, point, mars.radius)
+        pygame.draw.line(WIN, WHITE, EARTH_COOR, point)
+
+        # find distance and show it bw earth and mars
         distance = math.sqrt((earth.x - mars.x) ** 2 + (earth.y - mars.y) ** 2)
         distance_text = FONT.render(str(distance) + " km", 1, WHITE)
         x = (EARTH_COOR[0] + MARS_COOR[0]) / 2
