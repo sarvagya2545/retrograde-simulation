@@ -19,7 +19,7 @@ class Planet:
     # distance from the sun in meters
     AU = 149.6e6 * 1000
     G = 6.67428e-11
-    SCALE = 125 / AU    # 1 AU = 100px
+    SCALE = 50 / AU    # 1 AU = 100px
     TIMESTEP = 3600 * 24    # 1 day in seconds
 
     def __init__(self, x, y, radius, color, mass, name) -> None:
