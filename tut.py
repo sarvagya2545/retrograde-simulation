@@ -1,7 +1,4 @@
 import pygame
-# from sympy import Ray, Circle, Point
-from shapely.geometry import LineString
-from shapely.geometry import Point
 import math
 pygame.init()
 
@@ -95,13 +92,10 @@ class Planet:
         self.y += self.y_vel * self.TIMESTEP
         self.orbit.append((self.x, self.y))
 
-# def get_intersection(r, center, coor1, coor2):
-def get_intersection(r, coor1, coor2):
+def get_intersection(r, center, coor1, coor2):
     # shift origin
-    # x1, y1 = (coor1[0] - center[0]), (coor1[1] - center[1])
-    # x2, y2 = (coor2[0] - center[0]), (coor2[1] - center[1])
-    x1, y1 = coor1
-    x2, y2 = coor2
+    x1, y1 = (coor1[0] - center[0]), (coor1[1] - center[1])
+    x2, y2 = (coor2[0] - center[0]), (coor2[1] - center[1])
 
     # convert 2 points to ax + by + c = 0
     a = y1 - y2
@@ -117,15 +111,13 @@ def get_intersection(r, coor1, coor2):
     ax, ay = x0 + b * mult, y0 - a * mult
     bx, by = x0 - b * mult, y0 + a * mult
 
-    # return (ax, ay, bx, by)
-
     # check if 2 points lie on the same side of the line perpendicular to current line segment
     # new line perpendicular: a1x + b1y + c1 = 0
     a1, b1, c1 = -b, a, (b * x1 - a * y1)
     if (a1 * ax + b1 * ay + c1 > 0) == (a1 * x2 + b1 * y2 + c1 > 0):
-        return ax, ay
+        return ax + center[0], ay + center[1]
     
-    return bx, by
+    return bx + center[0], by + center[0]
 
 def main():
     run = True
@@ -174,40 +166,15 @@ def main():
         CENTER = (WIDTH / 2, HEIGHT / 2)
         pygame.draw.circle(WIN, WHITE, CENTER, RADIUS, 1)
 
-        EARTH = (earth.x * Planet.SCALE, earth.y * Planet.SCALE)
-        MARS = (mars.x * Planet.SCALE, mars.y * Planet.SCALE)
-
-        x, y = get_intersection(RADIUS, EARTH, MARS)
-        # x, y = get_intersection(RADIUS, CENTER, EARTH_COOR, MARS_COOR)
-        # x += WIDTH / 2
-        # y += HEIGHT / 2
-        # point = x, y
-
-        # SYMPY solution
-        # circle = Circle((WIDTH / 2, HEIGHT / 2), 380)
-        # ray = Ray(Point(EARTH_COOR), Point(MARS_COOR))
-        # point = ray.intersection(circle)[0]
-
-        # SHAPELY solution
-        # center = Point(CENTER)
-        # circle = center.buffer(RADIUS).boundary
-        # ray = LineString([EARTH_COOR, MARS_COOR])
-        # i = circle.intersection(ray)
-        # point = i.geoms[0].coords[0]
-        # print(i)
-
-        point = (x + WIDTH / 2, y + HEIGHT / 2)
-        # pointb = (bx + WIDTH / 2, by + HEIGHT / 2)
+        # find the point of intersection and draw it
+        point = get_intersection(RADIUS, CENTER, EARTH_COOR, MARS_COOR)
         pygame.draw.circle(WIN, mars.color, point, mars.radius)
         pygame.draw.line(WIN, WHITE, EARTH_COOR, point)
-        # pygame.draw.circle(WIN, mars.color, pointb, mars.radius)
-        # pygame.draw.line(WIN, WHITE, EARTH_COOR, pointb)
 
         # find distance and show it bw earth and mars
         distance = math.sqrt((earth.x - mars.x) ** 2 + (earth.y - mars.y) ** 2)
         distance_text = FONT.render("Distance between Earth and Mars: " + str(distance) + " km", 1, WHITE)
         x, y = ((EARTH_COOR[0] + MARS_COOR[0]) / 2, (EARTH_COOR[1] + MARS_COOR[1]) / 2)
-        # WIN.blit(distance_text, (x - distance_text.get_width() / 2, y - distance_text.get_height() / 2))
         WIN.blit(distance_text, (0, 0))
 
         pygame.display.update()
