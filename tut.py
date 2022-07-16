@@ -55,6 +55,9 @@ FONT = pygame.font.SysFont("comicsans", 16)
 # Limit of frames per second
 FPS = 60
 
+# OFFSET
+OFFSET_X, OFFSET_Y = WIDTH / 2, HEIGHT / 2
+
 # Planet class
 class Planet:
     AU = 149.6e6 * 1000     # distance from the sun in meters
@@ -77,18 +80,18 @@ class Planet:
         self.y_vel = planet["init_y_vel"]
 
     def draw(self, win):
-        x = self.x * self.SCALE + WIDTH / 2
-        y = self.y * self.SCALE + HEIGHT / 2
+        x = self.x * self.SCALE + OFFSET_X
+        y = self.y * self.SCALE + OFFSET_Y
 
         if len(self.orbit) > 2:
-            updated_points = []
+            orbit_points = []
             for point in self.orbit:
                 point_x, point_y = point
-                point_x = point_x * self.SCALE + WIDTH / 2
-                point_y = point_y * self.SCALE + HEIGHT / 2
-                updated_points.append((point_x, point_y))
+                point_x = point_x * self.SCALE + OFFSET_X
+                point_y = point_y * self.SCALE + OFFSET_Y
+                orbit_points.append((point_x, point_y))
 
-            pygame.draw.lines(win, self.color, False, updated_points, 2)
+            pygame.draw.lines(win, self.color, False, orbit_points, 2)
         
         color = "WHITE"
         if self.name == "SUN":
@@ -102,16 +105,17 @@ class Planet:
 
     def get_force(self, sun):
         sun_x, sun_y = sun.x, sun.y
-        distance_x = sun_x - self.x
-        distance_y = sun_y - self.y
-        distance = math.sqrt(distance_y ** 2 + distance_x ** 2)
+        dist_x = sun_x - self.x
+        dist_y = sun_y - self.y
+        dist = math.sqrt(dist_y * dist_y + dist_x * dist_x)
         
         # F = G * M * m / R^2
-        magnitude = (self.G * self.mass * sun.mass) / (distance ** 2)
-        angle = math.atan2(distance_y, distance_x)
-        force_x = math.cos(angle) * magnitude
-        force_y = math.sin(angle) * magnitude
-        return force_x, force_y
+        # calculate fx and fy using magnitude and angle
+        magnitude = (self.G * self.mass * sun.mass) / (dist ** 2)
+        angle = math.atan2(dist_y, dist_x)
+        fx = math.cos(angle) * magnitude
+        fy = math.sin(angle) * magnitude
+        return fx, fy
 
     def update_position(self, sun):
         fx, fy = self.get_force(sun)
@@ -172,12 +176,12 @@ def main():
             planet.draw(WIN)
 
         # draw line bw earth and mars
-        EARTH_COOR = (earth.x * Planet.SCALE + WIDTH / 2, earth.y * Planet.SCALE + HEIGHT / 2)
-        MARS_COOR = (mars.x * Planet.SCALE + WIDTH / 2, mars.y * Planet.SCALE + HEIGHT / 2)
+        EARTH_COOR = (earth.x * Planet.SCALE + OFFSET_X, earth.y * Planet.SCALE + OFFSET_Y)
+        MARS_COOR = (mars.x * Planet.SCALE + OFFSET_X, mars.y * Planet.SCALE + OFFSET_Y)
 
         # find projection and show it
         RADIUS = 380
-        CENTER = (WIDTH / 2, HEIGHT / 2)
+        CENTER = (OFFSET_X, OFFSET_Y)
         pygame.draw.circle(WIN, Colors["WHITE"], CENTER, RADIUS, 1)
 
         # find the point of intersection and draw it
