@@ -25,7 +25,7 @@ planets_dict = {
         "start_y": 0,
         "radius": 30, # in pixels
         "color": Colors["YELLOW"],
-        "mass": 1.98892 * 10**30,
+        "mass": 1.989 * 10**30,
         "init_y_vel": 0,
         "init_x_vel": 0
     },
@@ -34,17 +34,17 @@ planets_dict = {
         "start_y": 0,
         "radius": 16, # in pixels
         "color": Colors["EARTH"],
-        "mass": 5.9742 * 10**24,
-        "init_y_vel": 29.783 * 1000,
+        "mass": 5.9722 * 10**24,
+        "init_y_vel": 29.78 * 1000,
         "init_x_vel": 0
     },
     "MARS": {
-        "start_x": -1.54,
+        "start_x": -1.5,
         "start_y": 0,
         "radius": 12, # in pixels
         "color": Colors["MARS"],
-        "mass": 6.39 * 10**23,
-        "init_y_vel": 24.077 * 1000,
+        "mass": 6.4169 * 10**23,
+        "init_y_vel": 24.07 * 1000,
         "init_x_vel": 0
     }
 }
@@ -60,8 +60,8 @@ OFFSET_X, OFFSET_Y = WIDTH / 2, HEIGHT / 2
 
 # Planet class
 class Planet:
-    AU = 149.6e6 * 1000     # distance from the sun in meters
-    G = 6.67428e-11
+    AU = 1.496e+11     # distance from the sun in meters
+    G = 6.67e-11
     SCALE = 50 / AU         # to scale the screen to distances, scale: 1 AU is 20px of screen
     TIMESTEP = 3600 * 24    # 1 day in seconds
 
