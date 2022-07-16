@@ -1,0 +1,11 @@
+To run this simulation, make sure that python3 & pip3 is installed.
+
+Then install pygame using pip3
+    Enter the following command in the terminal:
+    pip3 install pygame
+
+Then to run the file, make sure you are in the directory containing the retrograde.py file.
+Then run pip3 retrograde.py
+
+To stop:
+either Ctrl + C (Cmd + C if mac os) in terminal or Click the close button.
