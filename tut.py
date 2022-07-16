@@ -90,7 +90,11 @@ class Planet:
 
             pygame.draw.lines(win, self.color, False, updated_points, 2)
         
-        label_text = FONT.render(self.name, 1, Colors["WHITE"])
+        color = "WHITE"
+        if self.name == "SUN":
+            color = "BLACK"
+        
+        label_text = FONT.render(self.name, 1, Colors[color])
 
         pygame.draw.circle(win, self.color, (x, y), self.radius)
         win.blit(label_text, (x - label_text.get_width() / 2, y - label_text.get_height() / 2))
